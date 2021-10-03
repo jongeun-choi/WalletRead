@@ -69,6 +69,7 @@ public class Wallet {
         Coin coin = new Coin();
         coin.setCoin(coinName, avgPrice, coinQuantity);
         this.coins.add(coin);
+        coin.setWallet(this);
         return coin;
     }
 

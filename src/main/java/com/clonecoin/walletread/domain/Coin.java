@@ -31,6 +31,11 @@ public class Coin {
         return "coinName= " + coinName + " , avgPrice= " + avgPrice + " , coinQuantity= " + coinQuantity;
     }
 
+    public Coin setWallet(Wallet wallet) {
+        this.wallet = wallet;
+        return this;
+    }
+
     public Coin setCoin(String coinName, double avgPrice, double coinQuantity) {
         this.coinName = coinName;
         this.avgPrice = avgPrice;

@@ -16,6 +16,7 @@ import com.clonecoin.walletread.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,24 +61,36 @@ public class LeaderInformationImpl implements LeaderInformation {
     }
 
     // Analysis 서버로부터 들어오는 리더의 코인 변경 정보를 update 해준다.
+    @Transactional
     public void updateCoin(AnalysisDTO analysisDTO) {
         Wallet wallet = walletService.findWallet(analysisDTO.getUserId());
         List<Coin> coinList = wallet.getCoins();
 
         analysisDTO.getAfter().getCoins().stream().forEach(AnalysisCoin->{
-            coinList.stream().forEach(coin -> {
-                if (AnalysisCoin.getName().equals(coin.getCoinName())) {
-                    coin.setCoin(AnalysisCoin.getName(), AnalysisCoin.getAvgPrice(), AnalysisCoin.getCoinQuantity());
-                }
-            });
+
+            Optional<Coin> findCoin = coinList.stream()
+                    .filter(coin -> coin.getCoinName().equals(AnalysisCoin.getName()))
+                    .findFirst();
+
+            if (findCoin.isEmpty()) {
+                wallet.createCoin(AnalysisCoin.getName(), AnalysisCoin.getAvgPrice(), AnalysisCoin.getCoinQuantity());
+            }
+
+            if (findCoin.isPresent()) {
+                findCoin.get().setCoin(AnalysisCoin.getName(), AnalysisCoin.getAvgPrice(), AnalysisCoin.getCoinQuantity());
+            }
         });
 
-        System.out.print("실행 후 : ");
-        wallet.getCoins().stream().forEach(coin -> System.out.println(coin.toString()));
-
         LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO(wallet.getUserId(), wallet.getCoins());
+        System.out.println("\nLeaderCoinDto 확인 ");
+        leaderCoinDTO.getCoinList().stream().forEach(coin -> System.out.println(coin.toString()));
+        System.out.println();
+
         // Websocket 으로 보내주는 로직
-        
+
+
+
+
     }
 
     // 리더의 (1, 7, 30) 기간별 수익률 제공
