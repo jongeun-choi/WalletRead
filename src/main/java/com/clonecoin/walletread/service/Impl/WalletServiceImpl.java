@@ -9,6 +9,7 @@ import com.clonecoin.walletread.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class WalletServiceImpl implements WalletService {
     public final ProfitRepository profitRepository;
 
     // Wallet 생성
+    @Transactional
     public void createWallet(WalletDTO walletDTO){
         Optional<Wallet> result = walletRepository.findByUserId(walletDTO.getUserId());
         if (result.isPresent()) {
@@ -53,6 +55,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     // 리더별 일일 수익률 저장
+    @Transactional
     public void updateDayProfit(WalletDTO walletDTO) {
         System.out.println("\n\n"+walletDTO.toString());
         System.out.println(walletDTO.getProfitDto().toString());
