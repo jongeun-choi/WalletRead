@@ -87,11 +87,16 @@ public class LeaderInformationImpl implements LeaderInformation {
         System.out.println();
 
         // Websocket 으로 보내주는 로직
-
-
-
-
     }
+
+    public LeaderCoinDTO getLeaderCoin(Long userId){
+        LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO();
+        leaderCoinDTO.setUserId(userId);
+        leaderCoinDTO.setCoinList(walletService.findWallet(userId).getCoins());
+        leaderCoinDTO.getCoinList().stream().forEach(coin -> System.out.println(coin.toString()));
+        return leaderCoinDTO;
+    }
+
 
     // 리더의 (1, 7, 30) 기간별 수익률 제공
     public LeaderPeriodDTO getLeaderPeriod(Long userId, Long period) {
