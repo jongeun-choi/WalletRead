@@ -3,7 +3,6 @@ package com.clonecoin.walletread.service.Impl;
 import com.clonecoin.walletread.domain.Coin;
 import com.clonecoin.walletread.domain.Profit;
 import com.clonecoin.walletread.domain.Wallet;
-import com.clonecoin.walletread.domain.event.AllLeaderDTO;
 import com.clonecoin.walletread.domain.event.AnalysisDTO;
 import com.clonecoin.walletread.domain.event.LeaderCoinDTO;
 import com.clonecoin.walletread.domain.event.LeaderPeriodDTO;
@@ -31,8 +30,8 @@ public class LeaderInformationImpl implements LeaderInformation {
     public final CoinRepository coinRepository;
 
     // 모든 리더에 대한 all, best, worst 정보 제공
-    public AllLeaderDTO getAllLeader() { 
-        AllLeaderDTO allLeaderDTO = new AllLeaderDTO();
+    public List<AllLeaderContent> getAllLeader() {
+        List<AllLeaderContent> allLeaderContentList = new ArrayList<>();
 
         List<Wallet> walletList = walletRepository.findAll();
         walletList.stream().forEach(wallet -> {
@@ -54,10 +53,10 @@ public class LeaderInformationImpl implements LeaderInformation {
             allLeaderContent.setBest(best);
             allLeaderContent.setWorst(worst);
 
-            allLeaderDTO.addContent(allLeaderContent);
+            allLeaderContentList.add(allLeaderContent);
         });
-        allLeaderDTO.getAllLeaderContentList().stream().forEach(allLeaderContent -> System.out.println(allLeaderContent.toString()));
-        return allLeaderDTO;
+        allLeaderContentList.stream().forEach(allLeaderContent -> System.out.println(allLeaderContent.toString()));
+        return allLeaderContentList;
     }
 
     // Analysis 서버로부터 들어오는 리더의 코인 변경 정보를 update 해준다.
