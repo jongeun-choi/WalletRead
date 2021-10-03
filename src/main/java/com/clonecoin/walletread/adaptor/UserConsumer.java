@@ -48,6 +48,7 @@ public class UserConsumer {
         this.kafkaConsumer = new KafkaConsumer<>(kafkaProperties.getConsumerProps());
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
 
+
         // subscribe 할 토픽명을 지정
         kafkaConsumer.subscribe(Collections.singleton(TOPIC_USER)); // user 서버 구독
 
