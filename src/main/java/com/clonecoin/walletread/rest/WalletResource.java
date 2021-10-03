@@ -1,13 +1,14 @@
 package com.clonecoin.walletread.rest;
 
-import com.clonecoin.walletread.domain.event.AllLeaderDTO;
 import com.clonecoin.walletread.domain.event.LeaderCoinDTO;
 import com.clonecoin.walletread.domain.event.LeaderPeriodDTO;
+import com.clonecoin.walletread.domain.event.dtofactor.AllLeaderDtoFactor.AllLeaderContent;
 import com.clonecoin.walletread.service.LeaderInformation;
 import com.clonecoin.walletread.service.WalletService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/walletread")
@@ -19,7 +20,7 @@ public class WalletResource {
 
     // 모든 리더의 정보 가져오기
     @GetMapping("/leaders")
-    public AllLeaderDTO getLeader() {
+    public List<AllLeaderContent> getLeader() {
         return leaderInformation.getAllLeader();
     }
 
