@@ -12,8 +12,4 @@ public interface WalletService {
     Wallet findWallet(Long userId);
 
     void updateDayProfit(WalletDTO walletDTO);
-
-    //test용
-    void makeWallet();
-
 }
