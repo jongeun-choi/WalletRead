@@ -29,7 +29,7 @@ public class AnalysisConsumer {
 
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public static final String TOPIC_ANALYSIS = "topic_analysis";
+    public static final String TOPIC_ANALYSIS = "buy-sell";
 
     private final KafkaProperties kafkaProperties;
 
