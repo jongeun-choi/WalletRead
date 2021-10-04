@@ -32,6 +32,9 @@ public class Wallet {
     @Column(name = "leaderName")
     private String userName;
 
+    @Column(name = "balance")
+    private Double balance;
+
     // walletWrite(부모) Entity가 사라지면 profitWrite(자식) Entity도 사라진다.
     // profitWrite가 null이 되는 객체가 있다면 연관관계에서 delete한다.
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -52,6 +55,11 @@ public class Wallet {
     public Wallet createWallet(Long userId,String userName) {
         this.userId = userId;
         this.userName = userName;
+        return this;
+    }
+
+    public Wallet setBalance(double balance) {
+        this.balance = balance;
         return this;
     }
 

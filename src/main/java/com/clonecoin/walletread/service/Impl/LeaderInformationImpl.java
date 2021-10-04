@@ -13,6 +13,7 @@ import com.clonecoin.walletread.repository.WalletRepository;
 import com.clonecoin.walletread.service.LeaderInformation;
 import com.clonecoin.walletread.service.WalletService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -25,9 +26,10 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class LeaderInformationImpl implements LeaderInformation {
-    public final WalletRepository walletRepository;
-    public final WalletService walletService;
-    public final CoinRepository coinRepository;
+    private final WalletRepository walletRepository;
+    private final WalletService walletService;
+    private final CoinRepository coinRepository;
+    private final SimpMessagingTemplate template;
 
     // 모든 리더에 대한 all, best, worst 정보 제공
     public List<AllLeaderContent> getAllLeader() {
@@ -63,6 +65,7 @@ public class LeaderInformationImpl implements LeaderInformation {
     @Transactional
     public void updateCoin(AnalysisDTO analysisDTO) {
         Wallet wallet = walletService.findWallet(analysisDTO.getUserId());
+        wallet.setBalance(analysisDTO.getAfter().getTotalKRW());
         List<Coin> coinList = wallet.getCoins();
 
         analysisDTO.getAfter().getCoins().stream().forEach(AnalysisCoin->{
@@ -80,18 +83,22 @@ public class LeaderInformationImpl implements LeaderInformation {
             }
         });
 
-        LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO(wallet.getUserId(), wallet.getCoins());
+        LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO(wallet.getUserId(), analysisDTO.getAfter().getTotalKRW(), wallet.getCoins());
         System.out.println("\nLeaderCoinDto 확인 ");
         leaderCoinDTO.getCoinList().stream().forEach(coin -> System.out.println(coin.toString()));
         System.out.println();
 
         // Websocket 으로 보내주는 로직
+        template.convertAndSend("/topic/group/" + analysisDTO.getUserId(), leaderCoinDTO);
     }
 
+    // 리더의 코인별 정보와 잔액을 제공
     public LeaderCoinDTO getLeaderCoin(Long userId){
         LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO();
         leaderCoinDTO.setUserId(userId);
-        leaderCoinDTO.setCoinList(walletService.findWallet(userId).getCoins());
+        Wallet wallet = walletService.findWallet(userId);
+        leaderCoinDTO.setBalance(wallet.getBalance());
+        leaderCoinDTO.setCoinList(wallet.getCoins());
         leaderCoinDTO.getCoinList().stream().forEach(coin -> System.out.println(coin.toString()));
         return leaderCoinDTO;
     }

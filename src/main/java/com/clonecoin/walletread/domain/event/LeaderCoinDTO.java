@@ -15,13 +15,17 @@ public class LeaderCoinDTO {
     @JsonProperty("leaderId")
     private Long userId;
 
+    @JsonProperty("balance")
+    private Double balance;
+
     @JsonProperty("coins")
     private List<Coin> coinList = new ArrayList<>();
 
     public LeaderCoinDTO() {}
 
-    public LeaderCoinDTO(Long userId, List<Coin> coinList) {
+    public LeaderCoinDTO(Long userId, Double balance, List<Coin> coinList) {
         this.userId = userId;
+        this.balance = balance;
         this.coinList = coinList;
     }
 }
