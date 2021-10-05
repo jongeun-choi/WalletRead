@@ -15,6 +15,9 @@ public class LeaderCoinDTO {
     @JsonProperty("leaderId")
     private Long userId;
 
+    @JsonProperty("leaderName")
+    private String userName;
+
     @JsonProperty("balance")
     private Double balance;
 
@@ -23,8 +26,9 @@ public class LeaderCoinDTO {
 
     public LeaderCoinDTO() {}
 
-    public LeaderCoinDTO(Long userId, Double balance, List<Coin> coinList) {
+    public LeaderCoinDTO(Long userId, String userName,Double balance, List<Coin> coinList) {
         this.userId = userId;
+        this.userName = userName;
         this.balance = balance;
         this.coinList = coinList;
     }

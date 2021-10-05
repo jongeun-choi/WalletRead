@@ -311,7 +311,7 @@ class LeaderInformationImplTest {
         wallet.getCoins().stream().forEach(coin -> System.out.println(coin.toString()));
 
         System.out.println("\n\nDTO 확인");
-        LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO(wallet.getUserId(), wallet.getBalance(), wallet.getCoins());
+        LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO(wallet.getUserId(), wallet.getUserName(),wallet.getBalance(), wallet.getCoins());
         leaderCoinDTO.getCoinList().stream().forEach(coin -> System.out.println(coin.toString()));
     }
 }

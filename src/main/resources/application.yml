@@ -3,17 +3,14 @@ server:
   eurekaport: 8761
 
 spring:
-  mvc:
-    view:
-      prefix: /WEB-INF/
-      suffix: .jsp
-
   application:
     name: walletread
   h2:
     console:
       enabled: true
       path: /h2-console
+      settings:
+        web-allow-others: true
 
   datasource:
     driver-class-name: org.h2.Driver
@@ -27,10 +24,9 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
-
     hibernate:
       ddl-auto: create-drop
-
+    defer-datasource-initialization: true
 
 eureka:
   instance:
@@ -58,27 +54,23 @@ kafka:
     key.serializer: org.apache.kafka.common.serialization.StringSerializer
     value.serializer: org.apache.kafka.common.serialization.StringSerializer
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## 운영 환경
+#---
+#spring:
+#  profiles:
+#    active: prod
+#
+#
+## 개발 환경
+#---
+#spring:
+#  profiles:
+#    active: dev
+#
+#
+## 로컬 환경
+#---
+#spring:
+#  profiles:
+#    active: local
 

@@ -83,7 +83,7 @@ public class LeaderInformationImpl implements LeaderInformation {
             }
         });
 
-        LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO(wallet.getUserId(), analysisDTO.getAfter().getTotalKRW(), wallet.getCoins());
+        LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO(wallet.getUserId(), wallet.getUserName(),analysisDTO.getAfter().getTotalKRW(), wallet.getCoins());
         System.out.println("\nLeaderCoinDto 확인 ");
         leaderCoinDTO.getCoinList().stream().forEach(coin -> System.out.println(coin.toString()));
         System.out.println();
@@ -97,6 +97,7 @@ public class LeaderInformationImpl implements LeaderInformation {
         LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO();
         leaderCoinDTO.setUserId(userId);
         Wallet wallet = walletService.findWallet(userId);
+        leaderCoinDTO.setUserName(wallet.getUserName());
         leaderCoinDTO.setBalance(wallet.getBalance());
         leaderCoinDTO.setCoinList(wallet.getCoins());
         leaderCoinDTO.getCoinList().stream().forEach(coin -> System.out.println(coin.toString()));
@@ -110,9 +111,11 @@ public class LeaderInformationImpl implements LeaderInformation {
         LeaderPeriodDTO leaderPeriodDTO = new LeaderPeriodDTO();
         leaderPeriodDTO.setUserId(userId);
 
+
         List<LeaderPeriodContent> leaderPeriodContentList = new ArrayList<>();
 
         Wallet wallet = walletService.findWallet(userId);
+        leaderPeriodDTO.setUserName(wallet.getUserName());
 
         wallet.getProfits().stream().forEach(profit -> {
             LeaderPeriodContent leaderPeriodContent = new LeaderPeriodContent();
@@ -148,7 +151,7 @@ public class LeaderInformationImpl implements LeaderInformation {
             count++;
             if (count == period) {
                 LeaderPeriodContent leaderPeriodContent2 = new LeaderPeriodContent();
-                leaderPeriodContent2.setProfit(sum / 7);
+                leaderPeriodContent2.setProfit(sum / period);
                 leaderPeriodContent2.setLocalDate(leaderPeriodContent.getLocalDate());
                 leaderPeriodContentList2.add(leaderPeriodContent2);
 
