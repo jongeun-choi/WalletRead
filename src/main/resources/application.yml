@@ -58,7 +58,7 @@ kafka:
 spring:
   config:
     activate:
-      on-profile: local
+      on-profile: dev
   application:
     name: walletread
   h2:
