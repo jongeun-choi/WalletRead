@@ -21,7 +21,7 @@ import java.util.List;
 public class Wallet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -52,18 +52,20 @@ public class Wallet {
     }
 
 
+    // Wallet 생성
     public Wallet createWallet(Long userId,String userName) {
         this.userId = userId;
         this.userName = userName;
         return this;
     }
 
+    // Wallet 잔액 설정
     public Wallet setBalance(double balance) {
         this.balance = balance;
         return this;
     }
 
-
+    // 갱신된 Profit 리턴
     public Profit updateDayProfit(double totalProfitRatio, double investment, LocalDate localDate){
         Profit profit = new Profit();
         profit.createProfit(totalProfitRatio,investment,localDate);

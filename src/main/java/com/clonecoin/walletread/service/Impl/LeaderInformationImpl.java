@@ -20,7 +20,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -105,18 +104,16 @@ public class LeaderInformationImpl implements LeaderInformation {
     }
 
 
-    // 리더의 (1, 7, 30) 기간별 수익률 제공
+    // 리더의 (1일, 7일, 30일) 기준, 기간별 수익률 제공
     public LeaderPeriodDTO getLeaderPeriod(Long userId, Long period) {
+
+        Wallet wallet = walletService.findWallet(userId);
 
         LeaderPeriodDTO leaderPeriodDTO = new LeaderPeriodDTO();
         leaderPeriodDTO.setUserId(userId);
-
-
-        List<LeaderPeriodContent> leaderPeriodContentList = new ArrayList<>();
-
-        Wallet wallet = walletService.findWallet(userId);
         leaderPeriodDTO.setUserName(wallet.getUserName());
 
+        List<LeaderPeriodContent> leaderPeriodContentList = new ArrayList<>(); // 리더의 1일 수익률을 list 에 저장
         wallet.getProfits().stream().forEach(profit -> {
             LeaderPeriodContent leaderPeriodContent = new LeaderPeriodContent();
             leaderPeriodContent.setProfit(profit.getProfit());
@@ -124,16 +121,14 @@ public class LeaderInformationImpl implements LeaderInformation {
             leaderPeriodContentList.add(leaderPeriodContent);
         });
 
-
-
-        if (period == 1) {
+        if (period == 1) { // 1일 기준 수익률을 요청했을 시
             leaderPeriodDTO.setLeaderPeriodContentList(leaderPeriodContentList);
         }
-        if (period == 7) {
+        if (period == 7) { // 7일 기준 수익률을 요청했을 시
             List<LeaderPeriodContent> leaderPeriodContentList_7 = getLeaderPeriodContentList(leaderPeriodContentList, 7);
             leaderPeriodDTO.setLeaderPeriodContentList(leaderPeriodContentList_7);
         }
-        if (period == 30) {
+        if (period == 30) { // 30일 기준 수익률을 요쳥했을 시
             List<LeaderPeriodContent> leaderPeriodContentList_30 = getLeaderPeriodContentList(leaderPeriodContentList, 30);
             leaderPeriodDTO.setLeaderPeriodContentList(leaderPeriodContentList_30);
         }
@@ -141,8 +136,8 @@ public class LeaderInformationImpl implements LeaderInformation {
         return leaderPeriodDTO;
     }
 
-    // 1일 기준 수익률 -> 원하는 기간별 수익률
-    public List<LeaderPeriodContent> getLeaderPeriodContentList(List<LeaderPeriodContent> leaderPeriodContentList, long period) {
+    // 1일 기준 수익률 -> 원하는 기간별 수익률로 변환
+    public List<LeaderPeriodContent> getLeaderPeriodContentList(List<LeaderPeriodContent> leaderPeriodContentList, int period) {
         List<LeaderPeriodContent> leaderPeriodContentList2 = new ArrayList<>();
         int count = 0;
         double sum = 0;

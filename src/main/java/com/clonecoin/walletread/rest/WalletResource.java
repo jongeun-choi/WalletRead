@@ -5,6 +5,7 @@ import com.clonecoin.walletread.domain.event.LeaderPeriodDTO;
 import com.clonecoin.walletread.domain.event.dtofactor.AllLeaderDtoFactor.AllLeaderContent;
 import com.clonecoin.walletread.service.LeaderInformation;
 import com.clonecoin.walletread.service.WalletService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/walletread")
 @RequiredArgsConstructor
+@ApiOperation("WalletWrite Rest Api")
 public class WalletResource {
 
     private final LeaderInformation leaderInformation;

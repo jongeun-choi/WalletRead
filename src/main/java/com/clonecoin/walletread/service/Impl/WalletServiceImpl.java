@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -41,6 +39,7 @@ public class WalletServiceImpl implements WalletService {
         System.out.println("\n"+wallet.toString());
     }
 
+    // userId 에 해당하는 Wallet 검색
     public Wallet findWallet(Long userId) {
         Optional<Wallet> wallet = walletRepository.findByUserId(userId);
         if (wallet.isEmpty()) {

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class Profit {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "profit")
@@ -32,6 +32,7 @@ public class Profit {
         return "userId : " + wallet.getUserId() + " , profit : " + profit + " , investment : "+investment+" , localDate : " + localDate;
     }
 
+    // Profit 생성
     public Profit createProfit(double totalProfitRatio, double investment, LocalDate localDate) {
         this.profit = totalProfitRatio;
         this.investment = investment;
@@ -39,6 +40,7 @@ public class Profit {
         return this;
     }
 
+    // Profit 과 mapping 되는 Wallet 설정
     public Profit setWallet(Wallet wallet) {
         this.wallet = wallet;
         return this;

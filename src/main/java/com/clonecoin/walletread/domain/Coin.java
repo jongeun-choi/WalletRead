@@ -10,7 +10,7 @@ import javax.persistence.*;
 public class Coin {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "coinName")
@@ -31,11 +31,13 @@ public class Coin {
         return "coinName= " + coinName + " , avgPrice= " + avgPrice + " , coinQuantity= " + coinQuantity;
     }
 
+    // Coin 과 mapping 되는 Wallet 설정
     public Coin setWallet(Wallet wallet) {
         this.wallet = wallet;
         return this;
     }
 
+    // 변경된 coin 정보에 따라 갱신
     public Coin setCoin(String coinName, double avgPrice, double coinQuantity) {
         this.coinName = coinName;
         this.avgPrice = avgPrice;
