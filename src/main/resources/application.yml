@@ -141,7 +141,7 @@ eureka:
       defaultZone: http://13.125.221.207:8761/eureka # ec2 eureka public address
 
 kafka:
-  bootstrap-servers: 13.125.171.36:9092:9092
+  bootstrap-servers: 13.125.171.36:9092
   consumer:
     key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
     value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
