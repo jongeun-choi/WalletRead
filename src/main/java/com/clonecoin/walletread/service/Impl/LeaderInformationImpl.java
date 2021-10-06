@@ -31,6 +31,7 @@ public class LeaderInformationImpl implements LeaderInformation {
     private final SimpMessagingTemplate template;
 
     // 모든 리더에 대한 all, best, worst 정보 제공
+    @Transactional
     public List<AllLeaderContent> getAllLeader() {
         List<AllLeaderContent> allLeaderContentList = new ArrayList<>();
 
@@ -92,6 +93,7 @@ public class LeaderInformationImpl implements LeaderInformation {
     }
 
     // 리더의 코인별 정보와 잔액을 제공
+    @Transactional
     public LeaderCoinDTO getLeaderCoin(Long userId){
         LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO();
         leaderCoinDTO.setUserId(userId);
@@ -105,6 +107,7 @@ public class LeaderInformationImpl implements LeaderInformation {
 
 
     // 리더의 (1일, 7일, 30일) 기준, 기간별 수익률 제공
+    @Transactional
     public LeaderPeriodDTO getLeaderPeriod(Long userId, Long period) {
 
         Wallet wallet = walletService.findWallet(userId);

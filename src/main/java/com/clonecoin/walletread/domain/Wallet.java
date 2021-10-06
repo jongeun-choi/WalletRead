@@ -37,10 +37,10 @@ public class Wallet {
 
     // walletWrite(부모) Entity가 사라지면 profitWrite(자식) Entity도 사라진다.
     // profitWrite가 null이 되는 객체가 있다면 연관관계에서 delete한다.
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Profit> profits = new ArrayList<>();
 
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Coin> coins = new ArrayList<>();
 
 
