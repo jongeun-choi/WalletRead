@@ -7,6 +7,7 @@ import com.clonecoin.walletread.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -15,28 +16,56 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 @RequiredArgsConstructor
-@ExtendWith(SpringExtension.class)
-@DataJpaTest // JPA관련 Component만 로드 된다. 테스트 종료 후 rollback이 되기 때문에 실제 repository에는 저장되지 않는다.
+@DataJpaTest
 class WalletServiceImplTest {
 
     @Autowired
     private WalletRepository walletRepository;
 
-    @Test
-    void updateDayProfit() {
-
-
+    WalletDTO makeWalletDTO() {
         ProfitDTO profitDTO =new ProfitDTO(12.34, 5000, "2021-10-01");
-        LocalDate date = LocalDate.parse(profitDTO.getLocalDate(), DateTimeFormatter.ISO_DATE);
-
-
         WalletDTO walletDTO = new WalletDTO();
         walletDTO.setUserId(1L);
         walletDTO.setUserName("Jong");
         walletDTO.setProfitDto(profitDTO);
+        return walletDTO;
+    }
+
+    @Test
+    void createWallet() {
+        WalletDTO walletDTO = makeWalletDTO();
+
+        Wallet wallet = new Wallet();
+        wallet.createWallet(walletDTO.getUserId(), walletDTO.getUserName());
+        walletRepository.save(wallet);
+
+        Optional<Wallet> res = walletRepository.findByUserId(wallet.getUserId());
+        assertThat(res.isPresent(),is(equalTo(true)));
+    }
+
+    @Test
+    void findWallet() {
+        WalletDTO walletDTO = makeWalletDTO();
+
+        Wallet wallet = new Wallet();
+        wallet.createWallet(walletDTO.getUserId(), walletDTO.getUserName());
+        walletRepository.save(wallet);
+
+        Optional<Wallet> res = walletRepository.findByUserId(wallet.getUserId());
+        assertThat(res.get().getUserId(),is(equalTo(wallet.getUserId())));
+    }
+
+    @Test
+    void updateDayProfit() {
+
+
+        WalletDTO walletDTO = makeWalletDTO();
+        LocalDate date = LocalDate.parse(walletDTO.getProfitDto().getLocalDate(), DateTimeFormatter.ISO_DATE);
 
         Wallet wallet = new Wallet();
         wallet.createWallet(walletDTO.getUserId(), walletDTO.getUserName());
@@ -48,11 +77,10 @@ class WalletServiceImplTest {
         }
 
         res.get().updateDayProfit(walletDTO.getProfitDto().getProfit(), walletDTO.getProfitDto().getInvestment(), date);
-        res.get().updateDayProfit(12.3, 5000, date);
         System.out.println(res.get().toString());
 
-
-
         res.get().getProfits().stream().forEach(profit -> System.out.println(profit.toString()));
+        assertThat(res.get().getProfits().get(0).getProfit(), is(equalTo(12.34)));
+        assertThat(res.get().getProfits().get(0).getLocalDate(), is(equalTo(date)));
     }
 }

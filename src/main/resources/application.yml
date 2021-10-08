@@ -1,5 +1,13 @@
 server:
   port: 8005
+  ssl:
+    enabled: true
+    key-alias: ayokeystore
+    key-store: ayokeystore.pkcs12
+    key-store-password: clonecoin
+    key-password: clonecoin
+    trust-store: ayotrust.pkcs12
+    trust-store-password: clonecoin
 
 ---
 
@@ -28,7 +36,7 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-    defer-datasource-initialization: true
+#    defer-datasource-initialization: true
 
 
 
@@ -80,7 +88,7 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-    defer-datasource-initialization: true
+#    defer-datasource-initialization: true
 
 
 
@@ -125,7 +133,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
-    defer-datasource-initialization: true
+#    defer-datasource-initialization: true
 
 
 eureka:

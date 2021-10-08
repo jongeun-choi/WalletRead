@@ -28,7 +28,7 @@ public class LeaderInformationImpl implements LeaderInformation {
     private final WalletRepository walletRepository;
     private final WalletService walletService;
     private final CoinRepository coinRepository;
-    private final SimpMessagingTemplate template;
+    //private final SimpMessagingTemplate template;
 
     // 모든 리더에 대한 all, best, worst 정보 제공
     @Transactional
@@ -89,7 +89,7 @@ public class LeaderInformationImpl implements LeaderInformation {
         System.out.println();
 
         // Websocket 으로 보내주는 로직
-        template.convertAndSend("/topic/group/" + analysisDTO.getUserId(), leaderCoinDTO);
+        //template.convertAndSend("/topic/group/" + analysisDTO.getUserId(), leaderCoinDTO);
     }
 
     // 리더의 코인별 정보와 잔액을 제공

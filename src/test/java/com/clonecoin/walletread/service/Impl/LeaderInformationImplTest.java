@@ -29,6 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+
 @RequiredArgsConstructor
 @ExtendWith(SpringExtension.class)
 @DataJpaTest // JPA관련 Component만 로드 된다. 테스트 종료 후 rollback이 되기 때문에 실제 repository에는 저장되지 않는다.
@@ -49,7 +53,6 @@ class LeaderInformationImplTest {
         Wallet w3 = new Wallet();
         w1.createWallet(5L, "jong");
         w2.createWallet(10L, "eun");
-        w3.createWallet(12L, "choi");
 
         w1.createCoin("BTC", 12, 5);
         w1.createCoin("ETH", 15, 8);
@@ -122,42 +125,23 @@ class LeaderInformationImplTest {
         l2.add(LocalDate.parse("2021-10-31", DateTimeFormatter.ISO_DATE));
 
         for (int i = 0; i < l1.size(); i++) {
-            profitRepository.save(w1.updateDayProfit(i+1, 1000 * i, l1.get(i)));
+            profitRepository.save(w1.updateDayProfit(i + 1, 1000 * i, l1.get(i)));
         }
 
-        /*
-        profitRepository.save(w1.updateDayProfit(111, 1000, localDate1));
-        profitRepository.save(w1.updateDayProfit(111.111, 1000, localDate2));
-        profitRepository.save(w1.updateDayProfit(111.11122, 1000, localDate3));
-
-        profitRepository.save( w2.updateDayProfit(222, 2000, localDate1));
-
-        profitRepository.save(w3.updateDayProfit(222, 3000, localDate1));
-        profitRepository.save( w3.updateDayProfit(2223, 3000, localDate2));
-        profitRepository.save(w3.updateDayProfit(22233, 3000, localDate2));
-        profitRepository.save(w3.updateDayProfit(222.33, 3000, localDate4));
-
-         */
-
         walletRepository.save(w1);
-       // walletRepository.save(w2);
-        //walletRepository.save(w3);
     }
 
     @Test
-    void bringAllLeader() {
-        
-        AllLeaderDTO allLeaderDTO = new AllLeaderDTO();
-
+    void getAllLeader() {
         makeWallet();
-
+        List<AllLeaderContent> allLeaderContentList = new ArrayList<>();
         List<Wallet> walletList = walletRepository.findAll();
         walletList.stream().forEach(wallet -> {
             AllLeaderContent allLeaderContent = new AllLeaderContent();
-            allLeaderContent.setUserId(wallet.getUserId()); // leader 아이디
-            allLeaderContent.setUserName(wallet.getUserName()); // leader 이름
+            allLeaderContent.setUserId(wallet.getUserId());
+            allLeaderContent.setUserName(wallet.getUserName());
 
-            Double all=wallet.getProfits().stream().mapToDouble(Profit::getProfit).sum()/wallet.getProfits().size(); // 수익률의 평균
+            Double all = wallet.getProfits().stream().mapToDouble(Profit::getProfit).sum() / wallet.getProfits().size();
             allLeaderContent.setAll(all);
 
             Double best=all;
@@ -171,50 +155,121 @@ class LeaderInformationImplTest {
             allLeaderContent.setBest(best);
             allLeaderContent.setWorst(worst);
 
-            allLeaderDTO.addContent(allLeaderContent);
-            System.out.println(allLeaderContent.toString());
+            allLeaderContentList.add(allLeaderContent);
         });
 
-        allLeaderDTO.getAllLeaderContentList().stream().forEach(allLeaderContent -> System.out.println(allLeaderContent.toString()));
+        assertThat(allLeaderContentList.get(0).getAll(), is(16.5));
+        assertThat(allLeaderContentList.get(0).getBest(), is(32.0));
+        assertThat(allLeaderContentList.get(0).getWorst(), is(1.0));
 
     }
 
     @Test
-    void getLeaderPeriod() {
-
+    void UpdateCoin() {
         makeWallet();
-
-        LeaderPeriodDTO leaderPeriodDTO = new LeaderPeriodDTO();
-        leaderPeriodDTO.setUserId(5L);
-
-        List<LeaderPeriodContent> leaderPeriodContentList = new ArrayList<>();
         Wallet wallet = walletRepository.findByUserId(5L).get();
 
+        Coin coin1 = new Coin();
+        Coin coin2 = new Coin();
+        Coin coin3 = new Coin();
+        coin1.setCoin("BTC", 20, 20);
+        coin2.setCoin("ETH", 30, 30);
+        coin3.setCoin("KLAY", 40, 40);
+
+        List<Coin> coinList = new ArrayList<>();
+        coinList.add(coin1);
+        coinList.add(coin2);
+        coinList.add(coin3);
+
+        coinList.stream().forEach(coin -> {
+            Optional<Coin> findCoin = wallet.getCoins().stream()
+                    .filter(filterCoin -> filterCoin.getCoinName().equals(coin.getCoinName()))
+                    .findFirst();
+
+            if (findCoin.isEmpty()) {
+                wallet.createCoin(coin.getCoinName(), coin.getAvgPrice(), coin.getCoinQuantity());
+            }
+
+            if (findCoin.isPresent()) {
+                findCoin.get().setCoin(coin.getCoinName(), coin.getAvgPrice(), coin.getCoinQuantity());
+            }
+        });
+
+        wallet.getCoins().stream().forEach(coin -> {
+            if (coin.getCoinName().equals("BTC")) {
+                assertThat(coin.getAvgPrice(),is(20.0));
+                assertThat(coin.getCoinQuantity(),is(20.0));
+            }
+            if (coin.getCoinName().equals("ETH")) {
+                assertThat(coin.getAvgPrice(),is(30.0));
+                assertThat(coin.getCoinQuantity(),is(30.0));
+            }
+            if (coin.getCoinName().equals("KLAY")) {
+                assertThat(coin.getAvgPrice(),is(40.0));
+                assertThat(coin.getCoinQuantity(),is(40.0));
+            }
+        });
+    }
+
+    @Test
+    void getLeaderCoin() {
+        makeWallet();
+        Wallet wallet = walletRepository.findByUserId(5L).get();
+        LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO();
+        leaderCoinDTO.setUserId(wallet.getUserId());
+        leaderCoinDTO.setUserName(wallet.getUserName());
+        leaderCoinDTO.setBalance(wallet.getBalance());
+        leaderCoinDTO.setCoinList(wallet.getCoins());
+
+
+        leaderCoinDTO.getCoinList().stream().forEach(coin -> {
+            if (coin.getCoinName().equals("BTC")) {
+                assertThat(coin.getAvgPrice(),is(12.0));
+                assertThat(coin.getCoinQuantity(),is(5.0));
+            }
+            if (coin.getCoinName().equals("ETH")) {
+                assertThat(coin.getAvgPrice(), is(15.0));
+                assertThat(coin.getCoinQuantity(), is(8.0));
+            }
+        });
+    }
+
+    @Test
+    void getLeaderPeriod() {
+        makeWallet();
+        Wallet wallet = walletRepository.findByUserId(5L).get();
+        LeaderPeriodDTO leaderPeriodDTO = new LeaderPeriodDTO();
+        leaderPeriodDTO.setUserId(wallet.getUserId());
+        leaderPeriodDTO.setUserName(wallet.getUserName());
+
+        List<LeaderPeriodContent> leaderPeriodContentList = new ArrayList<>(); // 리더의 1일 수익률을 list 에 저장
         wallet.getProfits().stream().forEach(profit -> {
             LeaderPeriodContent leaderPeriodContent = new LeaderPeriodContent();
             leaderPeriodContent.setProfit(profit.getProfit());
             leaderPeriodContent.setLocalDate(profit.getLocalDate());
             leaderPeriodContentList.add(leaderPeriodContent);
         });
-        
-        // 1일 기준
-        leaderPeriodDTO.setLeaderPeriodContentList(leaderPeriodContentList);
-        System.out.println(leaderPeriodDTO.getUserId());
-        leaderPeriodDTO.getLeaderPeriodContentList().stream().forEach(leaderPeriodContent -> System.out.println(leaderPeriodContent.toString()));
 
-        System.out.println("\n\n");
+        // period == 7
+        List<LeaderPeriodContent> leaderPeriodContents_7 = getLeaderPeriodContentList(leaderPeriodContentList, 7);
+        assertThat(leaderPeriodContents_7.size(),is(5));
 
+        // period == 30
+        List<LeaderPeriodContent> leaderPeriodContents_30 = getLeaderPeriodContentList(leaderPeriodContentList, 30);
+        assertThat(leaderPeriodContents_30.size(),is(2));
+    }
 
-        // 7일 기준
+    // 1일 기준 수익률 -> 원하는 기간별 수익률로 변환
+    List<LeaderPeriodContent> getLeaderPeriodContentList(List<LeaderPeriodContent> leaderPeriodContentList, int period) {
         List<LeaderPeriodContent> leaderPeriodContentList2 = new ArrayList<>();
         int count = 0;
         double sum = 0;
-        for (LeaderPeriodContent leaderPeriodContent : leaderPeriodDTO.getLeaderPeriodContentList()) {
+        for (LeaderPeriodContent leaderPeriodContent : leaderPeriodContentList) {
             sum += leaderPeriodContent.getProfit();
             count++;
-            if (count == 7) {
+            if (count == period) {
                 LeaderPeriodContent leaderPeriodContent2 = new LeaderPeriodContent();
-                leaderPeriodContent2.setProfit(sum / 7);
+                leaderPeriodContent2.setProfit(sum / period);
                 leaderPeriodContent2.setLocalDate(leaderPeriodContent.getLocalDate());
                 leaderPeriodContentList2.add(leaderPeriodContent2);
 
@@ -228,90 +283,9 @@ class LeaderInformationImplTest {
             leaderPeriodContent2.setLocalDate(LocalDate.now());
             leaderPeriodContentList2.add(leaderPeriodContent2);
         }
-        leaderPeriodDTO.setLeaderPeriodContentList(leaderPeriodContentList2);
-        System.out.println(leaderPeriodDTO.getUserId());
-        leaderPeriodDTO.getLeaderPeriodContentList().stream().forEach(leaderPeriodContent -> System.out.println(leaderPeriodContent.toString()));
 
+        leaderPeriodContentList2.stream().forEach(leaderPeriodContent -> System.out.println(leaderPeriodContent.toString()));
         System.out.println("\n\n");
-        
-        // 30일 기준
-        List<LeaderPeriodContent> leaderPeriodContentList3 = new ArrayList<>();
-        int count2 = 0;
-        double sum2 = 0;
-        for (LeaderPeriodContent leaderPeriodContent : leaderPeriodDTO.getLeaderPeriodContentList()) {
-            sum2 += leaderPeriodContent.getProfit();
-            count2++;
-            if (count2 == 30) {
-                LeaderPeriodContent leaderPeriodContent2 = new LeaderPeriodContent();
-                leaderPeriodContent2.setProfit(sum2 / 30);
-                leaderPeriodContent2.setLocalDate(leaderPeriodContent.getLocalDate());
-                leaderPeriodContentList3.add(leaderPeriodContent2);
-
-                sum2=0;
-                count2=0;
-            }
-        }
-        if (count2 != 0) {
-            LeaderPeriodContent leaderPeriodContent2 = new LeaderPeriodContent();
-            leaderPeriodContent2.setProfit(sum2 / count2);
-            leaderPeriodContent2.setLocalDate(LocalDate.now());
-            leaderPeriodContentList3.add(leaderPeriodContent2);
-        }
-        leaderPeriodDTO.setLeaderPeriodContentList(leaderPeriodContentList3);
-        System.out.println(leaderPeriodDTO.getUserId());
-        leaderPeriodDTO.getLeaderPeriodContentList().stream().forEach(leaderPeriodContent -> System.out.println(leaderPeriodContent.toString()));
-
-        System.out.println("\n\n");
-    }
-
-    AnalysisDTO makeAnalysisDto() {
-        AnalysisDTO analysisDTO = new AnalysisDTO();
-
-        List<AnalysisCoins> analysisCoinsList = new ArrayList<>();
-        AnalysisBefore analysisBefore = new AnalysisBefore();
-        AnalysisAfter analysisAfter = new AnalysisAfter();
-
-        AnalysisCoins analysisCoins1 = new AnalysisCoins("BTC", 5.3, 50000);
-        AnalysisCoins analysisCoins2 = new AnalysisCoins("ETH", 2.1, 3000);
-        analysisCoinsList.add(analysisCoins1);
-        analysisCoinsList.add(analysisCoins2);
-
-        analysisBefore.setCoins(analysisCoinsList);
-        analysisBefore.setTotalKRW(502);
-        analysisAfter.setCoins(analysisCoinsList);
-        analysisAfter.setTotalKRW(56);
-
-        analysisDTO.setUserId(5L);
-        analysisDTO.setAfter(analysisAfter);
-        analysisDTO.setBefore(analysisBefore);
-
-        return analysisDTO;
-    }
-
-    @Test
-    void updateCoin() {
-
-        makeWallet();
-        Wallet wallet = walletRepository.findByUserId(5L).get();
-        AnalysisDTO analysisDTO = makeAnalysisDto();
-
-        System.out.print("실행 전 : ");
-        wallet.getCoins().stream().forEach(coin -> System.out.println(coin.toString()));
-        
-        analysisDTO.getAfter().getCoins().stream().forEach(AnalysisCoin->{
-
-            List<Coin> coinList = wallet.getCoins();
-            coinList.stream().forEach(coin -> {
-                if (AnalysisCoin.getName().equals(coin.getCoinName())) {
-                    coin.setCoin(AnalysisCoin.getName(), AnalysisCoin.getAvgPrice(), AnalysisCoin.getCoinQuantity());
-                }
-            });
-        });
-        System.out.print("실행 후 : ");
-        wallet.getCoins().stream().forEach(coin -> System.out.println(coin.toString()));
-
-        System.out.println("\n\nDTO 확인");
-        LeaderCoinDTO leaderCoinDTO = new LeaderCoinDTO(wallet.getUserId(), wallet.getUserName(),wallet.getBalance(), wallet.getCoins());
-        leaderCoinDTO.getCoinList().stream().forEach(coin -> System.out.println(coin.toString()));
+        return leaderPeriodContentList2;
     }
 }
