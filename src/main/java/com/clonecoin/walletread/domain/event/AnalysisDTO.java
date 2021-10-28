@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AnalysisDTO {
-    @JsonProperty("leaderId")
+    @JsonProperty("userId")
     private Long userId;
 
     @JsonProperty("before")

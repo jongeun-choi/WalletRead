@@ -1,19 +1,28 @@
 server:
-  port: 0 # Random Port : 0
-  eurekaport: 8761
+  port: 8005
+  ssl:
+    enabled: true
+    key-alias: ayokeystore
+    key-store: ayokeystore.pkcs12
+    key-store-password: clonecoin
+    key-password: clonecoin
+    trust-store: ayotrust.pkcs12
+    trust-store-password: clonecoin
+
+---
 
 spring:
-  mvc:
-    view:
-      prefix: /WEB-INF/
-      suffix: .jsp
-
+  config:
+    activate:
+      on-profile: local
   application:
-    name: wallet-read-server
+    name: walletread
   h2:
     console:
       enabled: true
       path: /h2-console
+      settings:
+        web-allow-others: true
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:testdb
@@ -27,22 +36,19 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
+#    defer-datasource-initialization: true
+
 
 
 eureka:
   instance:
-    hostname: localhost
     instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
 
   client:
-    registerWithEureka: true
-    fetchRegistry: true
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.eurekaport}/eureka/ # ??? ?? ???
-
-greeting:
-  message: Welcome to the CloneCoin Project.
-
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka # -e
 
 kafka:
   bootstrap-servers: localhost:9092
@@ -55,27 +61,100 @@ kafka:
     key.serializer: org.apache.kafka.common.serialization.StringSerializer
     value.serializer: org.apache.kafka.common.serialization.StringSerializer
 
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  application:
+    name: walletread
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+#    defer-datasource-initialization: true
 
 
 
+eureka:
+  instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka # -e
+
+kafka:
+  bootstrap-servers: localhost:9092
+  consumer:
+    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    group.id: walletread
+    auto.offset.reset: earliest
+  producer:
+    key.serializer: org.apache.kafka.common.serialization.StringSerializer
+    value.serializer: org.apache.kafka.common.serialization.StringSerializer
+
+---
+
+spring:
+  application:
+    name: walletread
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://clonecoin-walletread-db.crtppt0lvgk7.ap-northeast-2.rds.amazonaws.com:3306/walletread?serverTimezone=UTC&characterEncoding=UTF-8
+    username: clonecoin
+    password: clonecoin
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    open-in-view: false
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+#    defer-datasource-initialization: true
 
 
+eureka:
+  instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+    prefer-ip-address: true
+    ip-address: 3.36.42.49
 
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://13.125.221.207:8761/eureka # ec2 eureka public address
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+kafka:
+  bootstrap-servers: 13.125.171.36:9092
+  consumer:
+    key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    group.id: walletread
+    auto.offset.reset: earliest
+  producer:
+    key.serializer: org.apache.kafka.common.serialization.StringSerializer
+    value.serializer: org.apache.kafka.common.serialization.StringSerializer

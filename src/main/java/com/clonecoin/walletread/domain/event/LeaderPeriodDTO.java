@@ -15,6 +15,9 @@ public class LeaderPeriodDTO {
     @JsonProperty("leaderId")
     private Long userId;
 
+    @JsonProperty("leaderName")
+    private String userName;
+
     @JsonProperty("profits")
     private List<LeaderPeriodContent> leaderPeriodContentList = new ArrayList<>();
 
